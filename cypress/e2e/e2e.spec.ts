@@ -17,14 +17,8 @@ const ids = {
 
 describe("page load", () => {
   it("should display welcome to {{shop}} message", () => {
-    cy.visit("/test/book");
-    cy.getByTestId("Shop Title").should("contain", "welcome to test");
-  });
-});
-
-describe("reservation: party size", () => {
-  it("should respect min and max totals across all age groups", () => {
-    cy.mock("get /shops/:id 200", (draft) => {
+    cy.mock("get /shops/:shop 200", (draft) => {
+      draft.slug = "test";
       draft.minNumPeople = 3;
       draft.maxNumPeople = 6;
       draft.showBaby = true;
@@ -32,8 +26,33 @@ describe("reservation: party size", () => {
       draft.showSenior = true;
     });
 
-    cy.mock("get /shops/:id/menu 200", (draft) => {
+    cy.visit("/test/book");
+    cy.getByTestId("Shop Title").should("contain", "welcome to test");
+  });
+});
+
+describe("reservation: party size", () => {
+  it("should respect min and max totals across all age groups", () => {
+    cy.mock("get /shops/:shop 200", (draft) => {
+      draft.minNumPeople = 3;
+      draft.maxNumPeople = 6;
+      draft.showBaby = true;
+      draft.showChild = true;
+      draft.showSenior = true;
+    });
+
+    cy.mock("get /shops/:shop/menu 200", (draft) => {
       draft.splice(0, draft.length);
+      draft.push(
+        client["get /shops/:shop/menu/item 200"]((item) => {
+          item.isGroupOrder = true;
+          item.minOrderQty = 2;
+        }),
+        client["get /shops/:shop/menu/item 200"]((item) => {
+          item.isGroupOrder = true;
+          item.maxOrderQty = 5;
+        })
+      );
     });
 
     cy.visit("/test/book");
@@ -81,27 +100,6 @@ describe("reservation: party size", () => {
   });
 
   it("should respect min max order qty for group orders", () => {
-    cy.mock("get /shops/:id 200", (draft) => {
-      draft.minNumPeople = 3;
-      draft.maxNumPeople = 6;
-      draft.showBaby = true;
-      draft.showChild = true;
-      draft.showSenior = true;
-    });
-
-    cy.mock("get /shops/:id/menu 200", (draft) => {
-      draft.splice(0, draft.length);
-      draft.push(
-        client["get /shops/:shop/menu 200"]((item) => {
-          item.isGroupOrder = true;
-          item.minOrderQty = 2;
-        }),
-        client["get /shops/:shop/menu 200"]((item) => {
-          item.isGroupOrder = true;
-          item.maxOrderQty = 5;
-        })
-      );
-    });
 
     cy.visit("/test/book");
 

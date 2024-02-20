@@ -68,6 +68,32 @@
           }
         }
       }
+    },
+    "/shops/{shop}/menu/item": {
+      "get": {
+        "summary": "Get a single shop's menu item",
+        "responses": {
+          "200": {
+            "description": "All went well",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                    "required": [
+                      "id",
+                      "title",
+                      "description",
+                      "isGroupOrder",
+                      "minOrderQty",
+                      "maxOrderQty"
+                    ],
+                    "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
